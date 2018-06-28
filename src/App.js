@@ -92,7 +92,6 @@ class FlybyRows extends Component {
 
   render() {
     const flybys = this.props.flybys;
-    console.log(flybys);
     const flybyRows = flybys.map((flyby) =>
       <tr key={flyby.risetime.toString()}>
         <td>{this.ms_convert(flyby.risetime, 'date')}</td>
@@ -111,9 +110,7 @@ class FlybyRows extends Component {
 
 class FlybyTable extends Component {
   render() {
-    console.log('table')
-    console.log(this.props);
-    if (this.props.flybys !== [{}]) {
+    if (this.props.flybys !== '') {
       return (
         <table>
           <thead>
@@ -133,9 +130,7 @@ class FlybyTable extends Component {
 }
 
 class App extends Component {
-  state = { flybys: [{}] }
   handleSubmit = values => {
-    console.log(this.props)
     console.log("The form was submitted");
     this.props.dispatch({
       type: 'QUERY',
@@ -161,7 +156,7 @@ class App extends Component {
 
 function mapStateToProps(state) {
 return ({
-    flybys: state.flybys
+    flybys: state.api.flybys
   });
 }
 
