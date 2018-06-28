@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { reduxForm, Field } from 'redux-form';
 import logo from './images/iss.png';
 import './App.css';
-import axios from 'axios'
 import { connect } from 'react-redux';
 
 
@@ -20,9 +19,6 @@ class Header extends Component {
 
 let IssApiForm = props => {
   const { handleSubmit } = props;
-
-
-
   return (
     <form onSubmit={handleSubmit}>
       <label>
@@ -70,24 +66,81 @@ IssApiForm = reduxForm({
   form: 'issapi',
 })(IssApiForm);
 
+
+class FlybyRows extends Component {
+  s_to_min = function(seconds) {
+    // takes number of seconds in string form
+    // converts to minutes and rounds to nearest whole number
+    // returns minutes in string form
+    const s = parseInt(seconds);
+    const m = Math.round(s / 60);
+    return m.toString();
+  }
+
+  ms_convert = function(milliseconds, type) {
+    const ms = parseInt(milliseconds);
+    const date = new Date(ms * 1000);
+    switch(type) {
+      case 'date':
+        return date.toLocaleDateString();
+      case 'time':
+        return date.toLocaleTimeString();
+      default:
+        return ''
+    }
+  }
+
+  render() {
+    const flybys = this.props.flybys;
+    console.log(flybys);
+    const flybyRows = flybys.map((flyby) =>
+      <tr key={flyby.risetime.toString()}>
+        <td>{this.ms_convert(flyby.risetime, 'date')}</td>
+        <td>{this.ms_convert(flyby.risetime, 'time')}</td>
+        <td>{this.s_to_min(flyby.duration)}</td>
+      </tr>
+    );
+    return (
+      <tbody>
+        {flybyRows}
+      </tbody>
+    );
+  }
+}
+
+
+class FlybyTable extends Component {
+  render() {
+    console.log('table')
+    console.log(this.props);
+    if (this.props.flybys !== [{}]) {
+      return (
+        <table>
+          <thead>
+          <tr>
+            <th>Date</th>
+            <th>Rise Time</th>
+            <th>Duration (minutes)</th>
+          </tr>
+          </thead>
+          <FlybyRows flybys={this.props.flybys}/>
+        </table>
+      );
+    } else {
+      return null
+    }
+  }
+}
+
 class App extends Component {
+  state = { flybys: [{}] }
   handleSubmit = values => {
+    console.log(this.props)
     console.log("The form was submitted");
-    axios.get(
-      "http://api.open-notify.org/iss-pass.json?lat=" +
-      values.latitude.toString() +
-      "&lon=" +
-      values.longitude.toString() +
-      "&n=" +
-      values.number.toString()
-      )
-      .then(response => {
-        console.log(response.data.response);
-        // this.props.dispatch({
-        //   type: 'RESPONSE',
-        //   'flybys': response.data.response
-        // });
-      })
+    this.props.dispatch({
+      type: 'QUERY',
+      values: values
+    });
   };
 
   render() {
@@ -99,6 +152,7 @@ class App extends Component {
             ISS API Form
           </p>
           <IssApiForm onSubmit={this.handleSubmit} />
+          <FlybyTable flybys={this.props.flybys}/>
         </div>
       </div>
     );
