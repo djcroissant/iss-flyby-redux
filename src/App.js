@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { reduxForm, Field } from 'redux-form';
 import logo from './images/iss.png';
 import './App.css';
+import axios from 'axios'
+import { connect } from 'react-redux';
 
 
 class Header extends Component {
@@ -70,7 +72,22 @@ IssApiForm = reduxForm({
 
 class App extends Component {
   handleSubmit = values => {
-    console.log(values);
+    console.log("The form was submitted");
+    axios.get(
+      "http://api.open-notify.org/iss-pass.json?lat=" +
+      values.latitude.toString() +
+      "&lon=" +
+      values.longitude.toString() +
+      "&n=" +
+      values.number.toString()
+      )
+      .then(response => {
+        console.log(response.data.response);
+        // this.props.dispatch({
+        //   type: 'RESPONSE',
+        //   'flybys': response.data.response
+        // });
+      })
   };
 
   render() {
@@ -88,4 +105,10 @@ class App extends Component {
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+return ({
+    flybys: state.flybys
+  });
+}
+
+export default connect(mapStateToProps)(App);
