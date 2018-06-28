@@ -8,42 +8,16 @@ import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import { reducer as formReducer } from 'redux-form';
 
-import axios from 'axios'
-
 
 const initialState = {
   flybys: ''
 }
 
-
-
 function apiReducer(state=initialState, action) {
-  const callApi = function(action) {
-    return axios.get(
-      "http://api.open-notify.org/iss-pass.json?lat=" +
-      action.values.latitude.toString() +
-      "&lon=" +
-      action.values.longitude.toString() +
-      "&n=" +
-      action.values.number.toString()
-    )
-    .then(response => {
-      return [{duration: 22, risetime: 22222222}]
-    })
-    .catch(error => {
-      return [{}]
-    })
-  };
-
   switch(action.type) {
     case 'QUERY':
-      const output = callApi(action).then(response => {
-          return [{duration: 22, risetime: 22222222}]
-        })
-      console.log('output')
-      console.log(output);
       return {
-        flybys: [{duration: 22, risetime: 22222222}]
+        flybys: action.apiResponse
       }
     default:
       return state;

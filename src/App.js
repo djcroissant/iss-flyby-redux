@@ -3,6 +3,8 @@ import { reduxForm, Field } from 'redux-form';
 import logo from './images/iss.png';
 import './App.css';
 import { connect } from 'react-redux';
+import axios from 'axios'
+
 
 
 class Header extends Component {
@@ -132,10 +134,20 @@ class FlybyTable extends Component {
 class App extends Component {
   handleSubmit = values => {
     console.log("The form was submitted");
-    this.props.dispatch({
-      type: 'QUERY',
-      values: values
-    });
+    axios.get(
+      "http://api.open-notify.org/iss-pass.json?lat=" +
+      values.latitude.toString() +
+      "&lon=" +
+      values.longitude.toString() +
+      "&n=" +
+      values.number.toString()
+      )
+      .then(response => {
+        this.props.dispatch({
+          type: 'QUERY',
+          apiResponse: response.data.response
+        });
+      })
   };
 
   render() {
